@@ -1,17 +1,22 @@
 package Game;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class Player {
 
     public int x, y;
-    public int width = 40;
-    public int height = 40;
+    public int width = 60;
+    public int height = 60;
     public int speed = 6;
+
+    private Image sprite;
 
     public Player(int startX, int startY) {
         this.x = startX;
         this.y = startY;
+
+        sprite = new ImageIcon("Assets/player.png").getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
     }
 
     public void moveLeft() { x -= speed; }
@@ -20,7 +25,10 @@ public class Player {
     public void moveDown() { y += speed; }
 
     public void draw(Graphics g) {
-        g.setColor(Color.cyan);
-        g.fillRect(x, y, width, height);
+        g.drawImage(sprite, x, y, null);
+    }
+
+    public Rectangle getArea() {
+        return new Rectangle(x, y, width, height);
     }
 }

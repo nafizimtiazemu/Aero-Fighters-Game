@@ -1,17 +1,22 @@
 package Game;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class Bullet {
 
     public int x, y;
-    public int width = 5;
-    public int height = 12;
+    public int width = 20;
+    public int height = 35;
     public int speed = 10;
+
+    private Image sprite;
 
     public Bullet(int x, int y) {
         this.x = x;
         this.y = y;
+
+        sprite = new ImageIcon("Assets/bullet.png").getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
     }
 
     public void update() {
@@ -19,8 +24,7 @@ public class Bullet {
     }
 
     public void draw(Graphics g) {
-        g.setColor(Color.YELLOW);
-        g.fillRect(x, y, width, height);
+        g.drawImage(sprite, x, y, null);
     }
 
     public Rectangle getArea() {

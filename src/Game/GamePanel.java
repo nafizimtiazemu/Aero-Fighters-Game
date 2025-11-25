@@ -133,8 +133,8 @@ public class GamePanel extends JPanel implements ActionListener {
             b.draw(g);
         }
 
-        for (Enemy enemy: enemies) {
-            enemy.draw(g);
+        for (Enemy e: enemies) {
+            e.draw(g);
         }
     }
 }
