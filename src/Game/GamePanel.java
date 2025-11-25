@@ -3,15 +3,25 @@ package Game;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
 
     private Timer timer;
     Player player;
 
+    ArrayList<Bullet> bullets = new ArrayList<>();
+    ArrayList<Enemy> enemies = new ArrayList<>();
+
     public static final int WIDTH = 480;
     public static final int HEIGHT = 720;
     public boolean left, right, up, down;
+
+    boolean shooting = false;
+    int shootCooldown = 0;
+
+    Random rand = new Random();
 
     public GamePanel() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -34,6 +44,8 @@ public class GamePanel extends JPanel implements ActionListener {
                 if (key == KeyEvent.VK_RIGHT) right = true;
                 if (key == KeyEvent.VK_UP) up = true;
                 if (key == KeyEvent.VK_DOWN) down = true;
+
+                if (key == KeyEvent.VK_SPACE) shooting = true;
             }
 
             @Override
@@ -44,6 +56,8 @@ public class GamePanel extends JPanel implements ActionListener {
                 if (key == KeyEvent.VK_RIGHT) right = false;
                 if (key == KeyEvent.VK_UP) up = false;
                 if (key == KeyEvent.VK_DOWN) down = false;
+
+                if (key == KeyEvent.VK_SPACE) shooting = false;
             }
         });
     }
@@ -56,6 +70,53 @@ public class GamePanel extends JPanel implements ActionListener {
         if (up) player.moveUp();
         if (down) player.moveDown();
 
+        if (shooting && shootCooldown == 0) {
+            bullets.add(new Bullet(player.x, player.y));
+            shootCooldown = 10;
+        }
+
+        if (shootCooldown > 0) {
+            shootCooldown--;
+        }
+
+        for(int i = 0; i < bullets.size(); i++) {
+            Bullet b = bullets.get(i);
+            b.update();
+
+            if (b.y < -10) {
+                bullets.remove(i);
+                i--;
+            }
+        }
+
+        if (rand.nextInt(100) == 0) {
+            enemies.add(new Enemy(WIDTH));
+        }
+
+        for(int i =0; i < enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
+            enemy.update();
+
+            if (enemy.y > HEIGHT) {
+                enemies.remove(i);
+                i--;
+            }
+        }
+
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet b = bullets.get(i);
+
+            for (int j = 0; j < enemies.size(); j++) {
+                Enemy enemy = enemies.get(j);
+
+                if (b.getArea().intersects(enemy.getArea())) {
+                    bullets.remove(i);
+                    enemies.remove(j);
+                    i--;
+                    break;
+                }
+            }
+        }
         repaint();
     }
 
@@ -67,5 +128,13 @@ public class GamePanel extends JPanel implements ActionListener {
         g.drawString("Aero Fighters Base Running", 140, 100);
 
         player.draw(g);
+
+        for (Bullet b: bullets) {
+            b.draw(g);
+        }
+
+        for (Enemy enemy: enemies) {
+            enemy.draw(g);
+        }
     }
 }

@@ -28,7 +28,7 @@ public class Enemy{
         g.fillRect(x, y, width, height);
     }
 
-    public Rectangle getBounds() {
+    public Rectangle getArea() {
         return new Rectangle(x, y, width, height);
     }
 }
