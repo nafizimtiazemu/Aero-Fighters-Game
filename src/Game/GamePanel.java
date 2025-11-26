@@ -11,6 +11,8 @@ public class GamePanel extends JPanel implements ActionListener {
     private Timer timer;
     Player player;
 
+    BackgroundScroller background;
+
     ArrayList<Bullet> bullets = new ArrayList<>();
     ArrayList<Enemy> enemies = new ArrayList<>();
 
@@ -30,8 +32,7 @@ public class GamePanel extends JPanel implements ActionListener {
         setFocusable(true);
         requestFocusInWindow();
 
-        timer = new Timer(16, this);
-        timer.start();
+        background = new BackgroundScroller();
 
         player = new Player(WIDTH/2-20, HEIGHT - 100);
 
@@ -60,10 +61,15 @@ public class GamePanel extends JPanel implements ActionListener {
                 if (key == KeyEvent.VK_SPACE) shooting = false;
             }
         });
+
+        timer = new Timer(16, this);
+        timer.start();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        background.update();
 
         if (left) player.moveLeft();
         if (right) player.moveRight();
@@ -124,8 +130,7 @@ public class GamePanel extends JPanel implements ActionListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.setColor(Color.white);
-        g.drawString("Aero Fighters Base Running", 140, 100);
+        background.draw(g);
 
         player.draw(g);
 
