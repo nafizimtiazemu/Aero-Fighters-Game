@@ -23,6 +23,9 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean shooting = false;
     int shootCooldown = 0;
 
+    int waveTimer = 0;
+    int difficulty = 1;
+
     Random rand = new Random();
 
     public GamePanel() {
@@ -95,7 +98,14 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
 
-        if (rand.nextInt(100) == 0) {
+        waveTimer++;
+
+        if (waveTimer % 600 == 0) {
+            difficulty++;
+            System.out.println("Difficulty: " + difficulty);
+        }
+
+        if (rand.nextInt(100) < difficulty * 2) {
             enemies.add(new Enemy(WIDTH));
         }
 
@@ -116,8 +126,13 @@ public class GamePanel extends JPanel implements ActionListener {
                 Enemy enemy = enemies.get(j);
 
                 if (b.getArea().intersects(enemy.getArea())) {
+                    enemy.hp--;
+
                     bullets.remove(i);
-                    enemies.remove(j);
+
+                    if (enemy.hp <= 0) {
+                        enemies.remove(j);
+                    }
                     i--;
                     break;
                 }
