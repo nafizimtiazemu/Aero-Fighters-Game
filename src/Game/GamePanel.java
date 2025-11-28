@@ -15,6 +15,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     ArrayList<Bullet> bullets = new ArrayList<>();
     ArrayList<Enemy> enemies = new ArrayList<>();
+    ArrayList<PowerUp> powerups = new ArrayList<>();
 
     public static final int WIDTH = 480;
     public static final int HEIGHT = 720;
@@ -25,6 +26,11 @@ public class GamePanel extends JPanel implements ActionListener {
 
     int waveTimer = 0;
     int difficulty = 1;
+
+    int rapidFireTimer = 0;
+    int shieldTimer = 0;
+
+    int playerHP = 3;
 
     Random rand = new Random();
 
@@ -79,20 +85,23 @@ public class GamePanel extends JPanel implements ActionListener {
         if (up) player.moveUp();
         if (down) player.moveDown();
 
+        if (rapidFireTimer > 0) rapidFireTimer--;
+        if (shieldTimer > 0) shieldTimer--;
+
+        int currentCooldown = (rapidFireTimer > 0) ? 4 : 10;
+
         if (shooting && shootCooldown == 0) {
-            bullets.add(new Bullet(player.x, player.y));
-            shootCooldown = 10;
+            bullets.add(new Bullet(player.x + player.width / 2 - 2, player.y));
+            shootCooldown = currentCooldown;
         }
 
-        if (shootCooldown > 0) {
-            shootCooldown--;
-        }
+        if (shootCooldown > 0) shootCooldown--;
 
         for(int i = 0; i < bullets.size(); i++) {
             Bullet b = bullets.get(i);
             b.update();
 
-            if (b.y < -10) {
+            if (b.y < -20) {
                 bullets.remove(i);
                 i--;
             }
@@ -127,17 +136,59 @@ public class GamePanel extends JPanel implements ActionListener {
 
                 if (b.getArea().intersects(enemy.getArea())) {
                     enemy.hp--;
-
                     bullets.remove(i);
+                    i--;
 
                     if (enemy.hp <= 0) {
+
+                        // 10% chance to drop a powerup
+                        if (rand.nextInt(100) < 10) {
+                            powerups.add(new PowerUp(enemy.x, enemy.y));
+                        }
+
                         enemies.remove(j);
                     }
-                    i--;
                     break;
                 }
             }
         }
+
+        for (int i = 0; i < powerups.size(); i++) {
+            PowerUp p = powerups.get(i);
+            p.update();
+
+            // Remove off-screen
+            if (p.y > HEIGHT) {
+                powerups.remove(i);
+                i--;
+            }
+        }
+
+        for (int i = 0; i < powerups.size(); i++) {
+            PowerUp p = powerups.get(i);
+
+            if (player.getArea().intersects(p.getArea())) {
+
+                // Apply effect
+                if (p.type == 0) {  // Health
+                    playerHP++;
+                    System.out.println("Health +1");
+                }
+                if (p.type == 1) {  // Rapid Fire
+                    rapidFireTimer = 600;  // 10 seconds
+                    System.out.println("Rapid Fire Activated!");
+                }
+                if (p.type == 2) {  // Shield
+                    shieldTimer = 600;
+                    System.out.println("Shield Activated!");
+                }
+
+                // Remove collected power-up
+                powerups.remove(i);
+                i--;
+            }
+        }
+
         repaint();
     }
 
@@ -149,12 +200,10 @@ public class GamePanel extends JPanel implements ActionListener {
 
         player.draw(g);
 
-        for (Bullet b: bullets) {
-            b.draw(g);
-        }
+        for (Bullet b: bullets) b.draw(g);
 
-        for (Enemy e: enemies) {
-            e.draw(g);
-        }
+        for (Enemy e: enemies) e.draw(g);
+
+        for (PowerUp p : powerups) p.draw(g);
     }
 }
